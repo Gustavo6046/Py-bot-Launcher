@@ -1,0 +1,12 @@
+#defines gravity
+gravity -48
+
+#floor brush
+brush normal 0 0 0 384 384 24
+
+#bots
+actor bot 96 128 45 100 Bot1 50 Bot
+actor bot 96 256 45 100 Bot1 50 Bot
+actor botnode startpoint 192 192 45 StartPoint 0 0 0
+actor botnode normal 192 256 0
+brush normal 192 384 0 128 256 24

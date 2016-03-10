@@ -1,0 +1,85 @@
+Learn how to do your first map you always wanted to watch bots fight monsters in!
+
+List of Topics
+======
+  0. Pre-Preparing
+  1. Your first brush
+  2. Bots and StartPoints
+  3. Map layout
+  4. NavigationPoints
+  5. Monsters
+  6. TargetPoints and EndMaps
+
+  
+=====
+0. Pre-Preparing
+=====
+
+Before you make a map, it's important you have in mind the exact layout of the map.
+For such task, it's recommended to first draw the map in a paper, with creativity
+as the only shapes you can use are rectangles for orthogonal layout. Make it flat
+since heights aren't really very good for the bots. ;)
+
+=Tools you might need?=
+
+- Python 2.7.10 and VPython installed, of course. Without it no script can be ran.
+
+- Notepad is the preferred editor to make the map files (.blm) while the official Editor tool
+isn't released, because it doesn't have the crapton of features modern editors have
+that might get in your way.
+
+Also know that the script that must be run is "Main.py" in the Code directory!
+
+====
+1. Your first brush
+====
+
+Normally, you have a full-fledged map editor like Unreal Editor or GtkRadiant do all the job
+in aligning textures, putting brushes, and even doing proportions, all for your map. However,
+you can't be lazy now that you have to edit this little map known as MyFirstMap.blm. The extension
+is *very* important because the engine doens't know it's a map without the .blm extension.
+
+| ProTip: To edit the extension in Notepad, "Save As" (Ctrl+Shift+S), set the Extension to "All |
+| types (.*)" and put ".blm" in the end of the filename if it isn't there already.				|
+
+Then edit the firstmap.txt file in the config folder such that you can load your map as soon as
+the simulation starts.
+
+Now, put the following line in your map file using Notepad (without quotes):
+
+"brush normal 0 0 0 128 128 16"
+
+"brush" means it'll be a brush, where bots and monsters can hold on (even because without brushes
+they would fall into void). "normal" means it'll just a static brush, no triggering or stuff needed.
+The first three numbers ("0 0 0") are the coordinates of the Corner. The Corner is a pivot that positions
+the brush. But the brush isn't completed without volume ("128 128 16"); they extend in their own axis
+(respectively, lenght, breadth and height) from the Corner such that it gives volume to the brush
+(duh).
+
+====
+2. Bots and StartPoints
+====
+
+A map is nothing, if there aren't bots to play it!
+
+Put the following line:
+"actor bot 64 64 1 MyFirstBot 100 bot1 50"
+
+"actor" means it's an actor definition, "bot" means it's a bot, "64 64 1" are the coordinates of thy
+bot (being that 64 is half of 128, so the bot will be in the exact middle of the brush, and 1 is one
+more than 0 used in the brush so the bot will stand above the brush (yes, the bot's tiny, but it's
+fast for it's size, since it can travel a 64x64 brush in no time)), "MyFirstBot" is the bot's
+name (not a important name since it's just to label stuff for a console-output-experienced user),
+"100" is the health, "bot1" is the tag (also only important when there are events, learned later on),
+and "50" is the armor (when bigger than 0, it takes 2/3 of all damage inflicted to health points
+while only decreasing 1/3 in armor points).
+
+StartPoints are points that identify a point as the start of the map, and as a NavigationPoint,
+for being the start of the map, makes bots go away from them and roam somewhere useful.
+
+Put the following line:
+"actor botnode startpoint 64 64 1 MyFirstStartPoint"
+
+"botnode" means it's a navigation point (bots use them to navigate the level, y'know), "startpoint"
+means it is a start point (durrrrr), 64 64 1 are the coordinates (matches the Bot's coordinates so 
+he runs away right away), and "MyFirstStartPoint" is just a affective label (name) like any other.

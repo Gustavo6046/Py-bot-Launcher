@@ -21,7 +21,6 @@ def main():
     #lists for VPython objects
     brushes = [] #brushes
     actors  = [] #actors
-    lights  = [] #lightes
 
     #defines what characters define comments
     commentchars = [";", "$", "#", "/", "!", "@"]

@@ -2,11 +2,11 @@
 gravity -48
 
 #floor brush
-brush normal 0 0 0 384 384 24
+brush normal 0.0 0.0 0.0 384.0 384.0 24.0
 
 #bots
-actor bot 96 128 45 100 Bot1 50 Bot
-actor bot 96 256 45 100 Bot1 50 Bot
-actor botnode startpoint 192 192 45 StartPoint 0 0 0
-actor botnode normal 192 256 0
-brush normal 192 384 0 128 256 24
+actor bot 96.0 128.0 45.0 100.0 Bot1 50.0 Bot
+actor bot 96.0 256.0 45.0 100.0 Bot1 50.0 Bot
+actor botnode startpoint 192.0 192.0 45.0 StartPoint 0.0 0.0 0.0
+actor botnode normal 192.0 256.0 1.0 Node1
+brush normal 192.0 384.0 0.0 128.0 256.0 24.0

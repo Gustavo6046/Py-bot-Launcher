@@ -1,9 +1,9 @@
 #defines gravity
 gravity -48
-
+#=====
 #floor brush
 brush normal 0.0 0.0 0.0 384.0 384.0 24.0
-
+#=====
 #bots
 actor bot 96.0 128.0 45.0 100.0 Bot1 50.0 Bot
 actor bot 96.0 256.0 45.0 100.0 Bot1 50.0 Bot

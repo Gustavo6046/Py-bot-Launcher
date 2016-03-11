@@ -2,6 +2,24 @@ from time import sleep
 from random import choice
 from math import sqrt
 
+if __name__ == "__main__":
+    open("..\log.txt", "w").close()
+
+def logandprint(logging):
+    if not isinstance(logging, str):
+        return False
+
+    print logging
+    return logtext(logging)
+
+def logtext(logging):
+    if not isinstance(logging, str):
+        return False
+    logtxt = open("..\log.txt", "a")
+    logtxt.write(logging + "\n")
+    logtxt.close()
+    return True
+
 #=================#
 # Project Classes #
 #=================#
@@ -32,7 +50,7 @@ class NormalBrush:
 
 class Vector:
     def __init__(self, x, y, z):
-        self.x, self.y, self.z = x, y, z
+        self.x, self.y, self.z = float(x), float(y), float(z)
 
     def unwrap(self):
         return [self.x, self.y, self.z]
@@ -53,7 +71,7 @@ class Vector:
         return Vector(self.x ** other, self.y ** other, self.z ** other)
 
     def move_towards(self, other, fraction):
-        self += ((other - self) / fraction)
+        self += ((other - self) / float(fraction))
         return self
 
     def __float__(self):
@@ -63,7 +81,6 @@ class Vector:
         return self.x * other.x + self.y * other.y + self.z * other.z
 
     def distance_to(self, other):
-
         return sqrt(self.dot_product(other))
 
 #==========================
@@ -89,7 +106,8 @@ class Game:
             mapparseline = mapparseline.rstrip()
             mapparsecode = mapparseline.split(" ")
 
-            print "Parsing map line: \"" + mapparseline + "\""
+            if not mapparsecode[0][:1] in self.commentchars:
+                logandprint("Parsing map line: \"" + mapparseline + "\"")
 
             if mapparsecode[0] == "brush":
                 if mapparsecode[1] == "normal":
@@ -184,26 +202,23 @@ class Game:
 
                     self.actorlist.append(Bot(x, y, z, health, name, armor, tag, self))
 
-            elif not self.commentchars.__contains__(mapparsecode[0][:1]):
-                print "Invalid map statement: " + mapparsecode[0]
+            elif not mapparsecode[0][:1] in self.commentchars:
+                logandprint("Invalid map statement: " + mapparsecode[0])
 
         if not hasattr(self, 'gravity'):
-            print "Map missing gravity! Setting to default (80)..."
+            logandprint("Map missing gravity! Setting to default (80)...")
             self.gravity = 80
 
-        print "Calculating NavigationPoint reachspecs..."
+        logandprint("Calculating NavigationPoint reachspecs...")
 
         for x in self.actorlist:
             if issubclass(type(x), NavigationPoint) or isinstance(x, NavigationPoint):
                 x.PostInitialization()
 
-        print "NavigationPoint reachspecs calculated!"
-
-        #Starts tickloop
-        print "Started tickloop!"
-        self.Tick()
+        logandprint("NavigationPoint reachspecs calculated!")
 
     def Tick(self):
+        logandprint("Started tickloop!")
         while True:
             sleep(1/30)
             for x in self.actorlist:
@@ -212,17 +227,19 @@ class Game:
 class Actor(object):
 
     def LineOfSightTo(self, Actor2):
-        assert isinstance(Actor2, Actor)
+            assert isinstance(Actor2, Actor) or issubclass(Type(Actor2), Actor)
 
-        currentpos = self.location
+            currentpos = self.location
 
-        while not self.owner.Touching(*currentpos.unwrap()):
-            currentpos.move_towards(Actor2.location, self.location.distance_to(Actor2.location) * 2)
+            logtext(self.name + " is detecting line of sight to " + Actor2.name)
 
-            if currentpos == Actor2.location:
-                return True
+            while not self.owner.Touching(currentpos.x, currentpos.y, currentpos.z):
+                currentpos.move_towards(Actor2.location * 1.0, self.location.distance_to(Actor2.location) / 2.5)
 
-        return False
+                if currentpos == Actor2.location:
+                    return True
+
+            return False
 
     def __init__(self, x, y, z, name, owner, pitch = 0, yaw = 0, roll = 0):
         self.x, self.y, self.z, self.name, self.owner,self.pitch, self.yaw, self.roll =\
@@ -272,7 +289,7 @@ class NavigationPoint(Actor):
             return []
 
         for w in ConnectedNodes:
-            if PreviousNodes.__contains__(w):
+            if w in PreviousNodes:
                 continue
             PreviousNodes.append(w)
             if w.DistanceToActor(TheActor) < MaxDist:
@@ -287,23 +304,27 @@ class NavigationPoint(Actor):
         path = []
 
         for w in ConnectedNodes:
-            if PreviousNodes.__contains__(w):
+            if w in PreviousNodes:
                 continue
             PreviousNodes.append(w)
             if isinstance(w, TargetPoint):
                 return PreviousNodes
             else:
-                path = w.GetPathToTarget(PreviousNodes)
+                curpath = w.GetPathToTarget(PreviousNodes)
+                if curpath != None and len(curpath) < len(path):
+                    path = curpath
         if path != []:
             return path
+        return None
 
     def SpecialHandling(self, Navigator):
         return Navigator.GetNextNavigationPoint(self)
 
     def PostInitialization(self):
         for x in self.owner.actorlist:
-            if ( isinstance(x, NavigationPoint) or issubclass(type(x), NavigationPoint) )\
-            and self.LineOfSightTo(x) and x.z - self.z < 70:
+            if not ( isinstance(x, NavigationPoint) and issubclass(type(x), NavigationPoint) ):
+                continue
+            if self.LineOfSightTo(x) and x.z - self.z < 70 and x != self:
                 self.ConnectedNodes.append(x)
 
 class TargetPoint(NavigationPoint):
@@ -367,8 +388,8 @@ class WeaponInventory(Inventory):
 
     def __init__(self, x, y, z, name, rating, firerate, projspeed, projdamage, projexplradius, owner):
         self.location, self.x, self.y, self.z, self.name,\
-        self.rating, self.firerate, self.owner, self.projdamage, self.projexplradius =\
-        Vector(x, y, z), x, y, z, name, rating, firerate, owner
+        self.rating, self.firerate, self.owner, self.projspeed, self.projdamage, self.projexplradius =\
+        Vector(x, y, z), x, y, z, name, rating, firerate, owner, projspeed, projdamage, projexplradius
 
     def Collected(self, owner):
         if isinstance(owner, Pawn) or issubclass(type(owner, Pawn)):
@@ -493,6 +514,24 @@ class Bot(Pawn):
 
     state = "Roaming"
 
+    def __init__(self, x, y, z, health, name, armor, tag, owner, pitch = 0, yaw = 0, roll = 0):
+        super(Bot, self).__init__(x, y, z, health, name, armor, tag, owner, pitch, yaw, roll)
+        self.currentweapon = WeaponInventory(self.x, self.y, self.z, "Shotty", 0.3, 20, 60, 12, 1, self.owner)
+
+    def Shoot(targetactor):
+        ChooseBestWeapon()
+        self.currentweapon.FireProjectile(targetactor.location)
+
+    def ChooseBestWeapon():
+        currating = 0
+
+        for w in self.Inventory:
+            if not isinstance(w, WeaponInventory):
+                continue
+            if w.rating > currating:
+                currating = w.rating
+                currentweapon = w
+
     def CollectInventory(self, inventory):
         if DistanceToActor(inventory) < 150:
             return False
@@ -514,11 +553,12 @@ class Bot(Pawn):
             Roam()
         else:
             MoveToActor(NextNavigationPoint)
-        print "Bot has moved to x=" + str(self.x) + " y=" + str(self.y)
-        if DistanceToActor(NextNavigationPoint) < 235 and ( isinstance(NextNavigationPoint, NavigationPoint) or issubclass(type(NextNavigationPoint), NavigationPoint) ):
+        logandprint("Bot has moved to x=" + str(self.x) + " y=" + str(self.y))
+        if DistanceToActor(NextNavigationPoint) < 235 and ( isinstance(NextNavigationPoint, NavigationPoint)\
+        or issubclass(type(NextNavigationPoint), NavigationPoint) ):
             NextNavigationPoint = NextNavigationPoint.SpecialHandling(self)
         elif isinstance(NextNavigationPoint, Inventory) or issubclass(type(NextNavigationPoint), Inventory):
-            if inventory.__contains__(NextNavigationPoint):
+            if NextNavigationPoint in inventory:
                 Roam()
         if self.ShootTarget != None:
             if self.ShootTarget.health == -666:

@@ -9,14 +9,14 @@
 # Licence:     CC-BY-SA
 #-------------------------------------------------------------------------------
 
-def main():
+import Classes as C
+print "Finished importing Classes!"
+from visual import *
+print "Finished importing VPython!"
+from time import sleep
+print "Finished importing sleep from time!"
 
-    import Classes as C
-    print "Finished importing Classes!"
-    from visual import *
-    print "Finished importing VPython!"
-    from time import sleep
-    print "Finished importing sleep from time!"
+def main():
 
     #lists for VPython objects
     brushes = [] #brushes
@@ -37,6 +37,9 @@ def main():
 
     #Starts the new game
     Thegame = C.Game(firstlvl)
+
+    #Starts tickloop of new game
+    Thegame.Tick()
 
     #renders each brush in the window
     for w in Thegame.brushlist:

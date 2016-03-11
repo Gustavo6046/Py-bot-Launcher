@@ -28,26 +28,70 @@ logandprint("Finished importing sqrt from math!")
 # Project Classes #
 #=================#
 
-# Main exceptions
-class BaseBLException(Exception):
-    pass
-
-class MissingMapVariableException(BaseBLException):
-    pass
-
-class WrongMapStatementException(BaseBLException):
-    pass
-
 # Brush class (just because)
 class NormalBrush:
 
-    def __init__(self, x, y, z, width, height, breadth, owner):
-        self.x, self.y, self.z, self.width, self.height, self.breadth,\
-        self.owner = x, y, z, width, height, breadth, owner
+    disttotarget = 0
+
+    def __init__(self, x, y, z, width, height, breadth, tag, owner):
+        self.position, self.x, self.y, self.z, self.width, self.height, self.breadth,\
+        self.owner = x, y, z, width, height, breadth, owner, Vector(x, y, z)
+        self.targetpos, self.initpos = self.position, self.position
+
+    def tick(self):
+        self.x, self.y, self.z = self.position.x, self.position.y, self.position.z
+        if self.position.unwrap() == self.targetpos.unwrap():
+            disttotarget = 0
+            self.initpos = self.position
+        else:
+            disttotarget += 1
+            self.position = self.position.move_towards(self.targetpos, self.position.distance_to(self.targetpos) / disttotarget)
 
     def HasCoordinate(self, x, y, z):
         return x > self.x and x < self.width + self.x and y < self.y and\
      y > self.y + self.breadth and z > self.z and z < self.z + self.height
+
+    def Touch(self, Other):
+        pass
+
+    def trigger(self, instigator):
+        pass
+
+class TriggerBrush(NormalBrush):
+
+    tickwait = -1
+
+    def __init__(self, x, y, z, width, height, breadth, tag, target, event, callevent, owner):
+        super(TriggerBrush, self).__init__(x, y, z, width, height, breadth, owner)
+        self.target, self.event, self.callevent = target, event, callevent
+        if not target.isinstance(Vector):
+            logandprint("Warning: Invalid type for target!")
+            target = self.position
+        if not callevent.isinstance(bool):
+            raise TypeError
+        self.target2 = self.position
+
+    def Touch(self, Other):
+        self.targetpos = self.target
+        self.toucher = Other
+
+    def trigger(self, instigator):
+        self.Touch(self, instigator)
+
+    def tick(self):
+        super(TriggerBrush, self)
+        if self.position.unwrap() == self.target.unwrap():
+            if tickwait == -1:
+                tickwait = 121
+                if self.Toucher != None:
+                    self.owner.Event(self, self.toucher)
+                self.toucher = None
+            tickwait -= 1
+            if tickwait < 1:
+                tickwait = -1
+                self.targetpos = self.target2
+
+
 
 #==========================
 # Math Classes
@@ -94,6 +138,15 @@ class Game:
     brushlist = []
     actorlist = []
     commentchars = ["#", ";", "/", "$"]
+
+    def Event(self, event, instigator, triggerer):
+        for x in brushlist:
+            if x.tag == event:
+                x.trigger(instigator, triggerer)
+
+        for xx in actorlist:
+            if x.tag == event:
+                x.trigger()
 
     def Touching(self, x, y, z):
         for w in self.brushlist:
@@ -474,6 +527,7 @@ class Pawn(Actor):
         for w in owner.brushlist:
             if w.Touching(self.x, self.y, self.z):
                 Touched = True
+                w.Touch(self)
         if Touched == True:
             self.location -= Vector(self.XVelocity, self.YVelocity, self.ZVelocity)
             ZVelocity = 0
@@ -616,9 +670,7 @@ class Monster(Pawn):
     def Killed(self, killer):
         super(self, Monster).Killed(killer)
 
-        for x in owner.actorlist:
-            if x.tag == self.event:
-                x.Trigger(killer, self)
+        self.owner.Event(killer, self)
 
     def tick(self):
         super(self, Monster).tick()

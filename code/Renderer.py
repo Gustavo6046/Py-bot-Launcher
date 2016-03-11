@@ -9,7 +9,7 @@ class RendererBrush:
         self.box = corrbox
 
     def Tick(self):
-        renderx, rendery, renderz = self.brush.location.x, self.brush.location.y, self.brush.location.z
+        renderx, rendery, renderz = self.brush.x, self.brush.y, self.brush.z
         corrbox.pos = (renderx, renderz, rendery)
         corrbox.width, corrbox.lenght, corrbox.height = self.brush.breadth, self.brush.width, self.brush.height
 
@@ -34,13 +34,15 @@ class GameRender:
 
     #adds brush to render
     def addbrush(self, brushname):
-        self.brushes.append (RendererBrush(brushname,\
-        box(pos = (brushname.location.x, brushname.location.z, brushname.location.y),\
+        self.renderedbrushes.append (RendererBrush(brushname,\
+        box(pos = (brushname.x, brushname.z, brushname.y),\
         lenght = brushname.width, height = brushname.height, width = brushname.breadth)))
 
     #tick loop
     def render(self):
         while True:
-            for w in renderedactors, renderedbrushes:
-                w.Tick()
-                Sleep(1/30)
+            for w in self.renderedactors:
+                w.tick()
+            for w in self.renderedbrushes:
+                w.tick()
+            Sleep(1/30)

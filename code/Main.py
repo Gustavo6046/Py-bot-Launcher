@@ -10,17 +10,15 @@
 #-------------------------------------------------------------------------------
 
 import Classes as C
-print "Finished importing Classes!"
-from visual import *
-print "Finished importing VPython!"
+C.logandprint("Finished importing Classes!")
 from time import sleep
-print "Finished importing sleep from time!"
+C.logandprint("Finished importing sleep from time!")
+import Renderer as R
+C.logandprint("Finished importing the VPython renderer!")
 
 def main():
 
-    #lists for VPython objects
-    brushes = [] #brushes
-    actors  = [] #actors
+    C.logandprint("Started initialization!")
 
     #defines what characters define comments
     commentchars = [";", "$", "#", "/", "!", "@"]
@@ -38,18 +36,19 @@ def main():
     #Starts the new game
     Thegame = C.Game(firstlvl)
 
+    #Starts renderer
+    renderer = R.GameRender()
+
+    #adds brushes and actors to it
+    for x, y in Thegame.actorlist. Thegame.brushlist:
+        renderer.addactor(x), renderer.addbrush(y)
+
+    #starts tickloop of renderer
+    renderer.render()
+
+    C.logandprint("Finished initialization!\n=========================\nStarted game tickloop")
     #Starts tickloop of new game
     Thegame.Tick()
-
-    #renders each brush in the window
-    for w in Thegame.brushlist:
-        brushes.append(box(pos=(w.x, w.z, w.y), length=(w.breadth), width=(w.width), height=(w.height), color=color.orange))
-
-    #renders each actor in the window every tick
-    while True:
-        for w in Thegame.actorlist:
-            actors.append(sphere(pos=(w.x, w.z, w,y)))
-            sleep(1/30)
 
 if __name__ == "__main__":
     main()

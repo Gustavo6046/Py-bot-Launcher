@@ -3,7 +3,9 @@ from random import choice
 from math import sqrt
 
 if __name__ == "__main__":
-    open("..\log.txt", "w").close()
+    clearfile = open("..\log.txt", "w")
+    clearfile.write("")
+    clearfile.close()
 
 def logandprint(logging):
     if not isinstance(logging, str):
@@ -19,6 +21,8 @@ def logtext(logging):
     logtxt.write(logging + "\n")
     logtxt.close()
     return True
+
+logandprint("Finished importing sqrt from math!")
 
 #=================#
 # Project Classes #
@@ -231,10 +235,17 @@ class Actor(object):
 
             currentpos = self.location
 
-            logtext(self.name + " is detecting line of sight to " + Actor2.name)
+            if Actor2 == self:
+                logtext("Warning: " + self.name + " tried to check line of sight to self!")
+                return False
+
+            if self.location == Actor2.location:
+                return True
+
+            logtext("   :" + self.name + " is detecting line of sight to " + Actor2.name)
 
             while not self.owner.Touching(currentpos.x, currentpos.y, currentpos.z):
-                currentpos.move_towards(Actor2.location * 1.0, self.location.distance_to(Actor2.location) / 2.5)
+                currentpos = currentpos.move_towards(Actor2.location * 1.0, self.location.distance_to(Actor2.location) / 2.5)
 
                 if currentpos == Actor2.location:
                     return True

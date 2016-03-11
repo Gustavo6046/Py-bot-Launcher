@@ -3,7 +3,7 @@ from random import choice
 from math import sqrt
 
 if __name__ == "__main__":
-    clearfile = open("..\log.txt", "w")
+    clearfile = open("..\\log.txt", "w")
     clearfile.write("")
     clearfile.close()
 
@@ -75,8 +75,7 @@ class Vector:
         return Vector(self.x ** other, self.y ** other, self.z ** other)
 
     def move_towards(self, other, fraction):
-        self += ((other - self) / float(fraction))
-        return self
+        return self + ((other - self) / float(fraction))
 
     def __float__(self):
         return (self.x + self.y + self.z) / 3
@@ -118,8 +117,8 @@ class Game:
 
                     #next line TL;DR: grab all values from the map's line
                     bx, by, bz, bwidth, bheight, bbreadth =\
-                    eval(mapparsecode[2]), eval(mapparsecode[3]), eval(mapparsecode[4]),\
-                    eval(mapparsecode[5]), eval(mapparsecode[6]), eval(mapparsecode[7])
+                    float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]),\
+                    float(mapparsecode[5]), float(mapparsecode[6]), float(mapparsecode[7])
 
                     #next line TL;DR: asserts all these values are floats
                     assert isinstance(bx, float)\
@@ -130,14 +129,14 @@ class Game:
                     self.brushlist.append(NormalBrush(bx, by, bz, bwidth, bheight, bbreadth, self))
 
             elif mapparsecode[0] == "gravity":
-                self.gravity = eval(mapparsecode[1])
+                self.gravity = float(mapparsecode[1])
 
             elif mapparsecode[0] == "actor":
                 if mapparsecode[1] == "endmap":
                     x, y, z, name, tag, lvlname, radius, height =\
-                    eval(mapparsecode[2]), eval(mapparsecode[3]), eval(mapparsecode[4]),\
+                    float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]),\
                     mapparsecode[5], mapparsecode[6], mapparsecode[7],\
-                    eval(mapparsecode[8]), eval(mapparsecode[9])
+                    float(mapparsecode[8]), float(mapparsecode[9])
 
                     assert isinstance(x, float) and isinstance(y, float) and\
                     isinstance(z, float) and isinstance(name, string) and\
@@ -148,60 +147,60 @@ class Game:
                 elif mapparsecode[1] == "monster":
                     x. y. z. health, name, armor, tag, pitch, yaw, roll, event,\
                     projdmg, projradius, projspeed=\
-                    eval(mapparsecode[2]), eval(mapparsecode[3]), eval(mapparsecode[4]),\
-                    eval(mapparsecode[5]), mapparsecode[6], eval(mapparsecode[7]),\
-                    mapparsecode[8], eval(mapparsecode[9]), eval(mapparsecode[10]),\
-                    eval(mapparsecode[11]), eval(mapparsecode[12]), eval(mapparsecode[12]),\
-                    eval(mapparsecode[13])
+                    float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]),\
+                    float(mapparsecode[5]), mapparsecode[6], float(mapparsecode[7]),\
+                    mapparsecode[8], float(mapparsecode[9]), float(mapparsecode[10]),\
+                    float(mapparsecode[11]), float(mapparsecode[12]), float(mapparsecode[12]),\
+                    float(mapparsecode[13])
 
                     self.actorlist.append(Monster(x, y, z, health, name, armor, tag, self, event, pitch, yaw, roll, projdmg, projradius, projspeed) )
                 elif mapparsecode[1] == "botnode":
                     if mapparsecode[2] == "startpoint":
                         x, y, z, name, pitch, yaw, roll =\
-                        eval(mapparsecode[3]), eval(mapparsecode[4]),\
-                        eval(mapparsecode[5]), mapparsecode[6],\
-                        eval(mapparsecode[7]), eval(mapparsecode[8]),\
-                        eval(mapparsecode[9])
+                        float(mapparsecode[3]), float(mapparsecode[4]),\
+                        float(mapparsecode[5]), mapparsecode[6],\
+                        float(mapparsecode[7]), float(mapparsecode[8]),\
+                        float(mapparsecode[9])
 
                         self.actorlist.append(StartPoint(x, y, z, name, self, pitch, yaw, roll))
 
                     elif mapparsecode[2] == "normal":
 
-                        x, y, z, name = eval(mapparsecode[3]), eval(mapparsecode[4]),\
-                        eval(mapparsecode[5]), mapparsecode[6]
+                        x, y, z, name = float(mapparsecode[3]), float(mapparsecode[4]),\
+                        float(mapparsecode[5]), mapparsecode[6]
 
                         self.actorlist.append(NavigationPoint(x, y, z, name, self))
 
                     elif mapparsecode[2] == "target":
 
-                        x, y, z, name = eval(mapparsecode[3]), eval(mapparsecode[4]),\
-                        eval(mapparsecode[5]), mapparsecode[6]
+                        x, y, z, name = float(mapparsecode[3]), float(mapparsecode[4]),\
+                        float(mapparsecode[5]), mapparsecode[6]
 
                         self.actorlist.append(TargetPoint(x, y, z, name. self))
 
                 elif mapparsecode[1] == "health":
 
-                    x, y, z, name, amount = eval(mapparsecode[2]),\
-                    eval(mapparsecode[3]), eval(mapparsecode[4]),\
-                    mapparsecode[5], eval(mapparsecode[6])
+                    x, y, z, name, amount = float(mapparsecode[2]),\
+                    float(mapparsecode[3]), float(mapparsecode[4]),\
+                    mapparsecode[5], float(mapparsecode[6])
 
                     self.actorlist.append(HealthInventory(x, y, z, name, amount, self))
 
                 elif mapparsecode[1] == "weapon":
 
                     x, y, z, name, rating, firerate, projspeed, projdamage,\
-                    projradius = eval(mapparsecode[2]), eval(mapparsecode[3]),\
-                    eval(mapparsecode[4]), mapparsecode[5], eval(mapparsecode[6]),\
-                    eval(mapparsecode[7]), eval(mapparsecode[8]), eval(mapparsecode[9]),\
-                    eval(mapparsecode[10])
+                    projradius = float(mapparsecode[2]), float(mapparsecode[3]),\
+                    float(mapparsecode[4]), mapparsecode[5], float(mapparsecode[6]),\
+                    float(mapparsecode[7]), float(mapparsecode[8]), float(mapparsecode[9]),\
+                    float(mapparsecode[10])
 
                     self.actorlist.append(WeaponInventory(x, y, z, name, rating, firerate, projspeed, projdamage, projradius, self))
 
                 elif mapparsecode[1] == "bot":
 
                     x, y, z, health, name, armor, tag =\
-                    eval(mapparsecode[2]), eval(mapparsecode[3]), eval(mapparsecode[4]),\
-                    eval(mapparsecode[5]), mapparsecode[6], eval(mapparsecode[7]),\
+                    float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]),\
+                    float(mapparsecode[5]), mapparsecode[6], float(mapparsecode[7]),\
                     mapparsecode[8]
 
                     self.actorlist.append(Bot(x, y, z, health, name, armor, tag, self))
@@ -244,11 +243,19 @@ class Actor(object):
 
             logtext("   :" + self.name + " is detecting line of sight to " + Actor2.name)
 
-            while not self.owner.Touching(currentpos.x, currentpos.y, currentpos.z):
-                currentpos = currentpos.move_towards(Actor2.location * 1.0, self.location.distance_to(Actor2.location) / 2.5)
+            portion = 0
 
-                if currentpos == Actor2.location:
+            while not self.owner.Touching(currentpos.x, currentpos.y, currentpos.z):
+
+                portion += 1
+
+                logtext("       -checked x=" + str(currentpos.x) + " y=" + str(currentpos.y) + " z=" + str(currentpos.z))
+                currentpos = currentpos.move_towards(Actor2.location, self.location.distance_to(Actor2.location) / (portion * 1.5))
+
+                if currentpos.unwrap() == Actor2.location.unwrap():
                     return True
+
+                sleep(1/500)
 
             return False
 

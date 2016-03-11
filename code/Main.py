@@ -40,8 +40,10 @@ def main():
     renderer = R.GameRender()
 
     #adds brushes and actors to it
-    for x, y in Thegame.actorlist. Thegame.brushlist:
-        renderer.addactor(x), renderer.addbrush(y)
+    for x in Thegame.actorlist:
+        renderer.addactor(x)
+    for y in Thegame.brushlist:
+        renderer.addbrush(y)
 
     #starts tickloop of renderer
     renderer.render()

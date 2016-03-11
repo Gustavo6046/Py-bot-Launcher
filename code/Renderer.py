@@ -8,7 +8,7 @@ class RendererBrush:
         self.brush = corrbrush
         self.box = corrbox
 
-    def Tick():
+    def Tick(self):
         renderx, rendery, renderz = self.brush.location.x, self.brush.location.y, self.brush.location.z
         corrbox.pos = (renderx, renderz, rendery)
         corrbox.width, corrbox.lenght, corrbox.height = self.brush.breadth, self.brush.width, self.brush.height
@@ -18,7 +18,7 @@ class RendererActor:
         self.actor = corractor
         self.sphere = corrsphere
 
-    def Tick():
+    def Tick(self):
         renderx, rendery, renderz = self.actor.location.x, self.actor.location.y, self.actor.location.z
         corrsphere.pos = (renderx, renderz, rendery)
 
@@ -28,18 +28,18 @@ class GameRender:
     renderedbrushes = [] #brushes
 
     #adds actor to render
-    def addactor(actorname):
+    def addactor(self, actorname):
         self.renderedactors.append(RendererActor(actorname,\
         sphere(pos=(actorname.location.x, actorname.location.z, actorname.location.y), radius=24, color=color.blue)))
 
     #adds brush to render
-    def addbrush(brushname):
+    def addbrush(self, brushname):
         self.brushes.append (RendererBrush(brushname,\
         box(pos = (brushname.location.x, brushname.location.z, brushname.location.y),\
         lenght = brushname.width, height = brushname.height, width = brushname.breadth)))
 
     #tick loop
-    def render():
+    def render(self):
         while True:
             for w in renderedactors, renderedbrushes:
                 w.Tick()

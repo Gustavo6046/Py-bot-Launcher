@@ -29,7 +29,7 @@ logandprint("Finished importing sqrt from math!")
 #=================#
 
 # Brush class (just because)
-class NormalBrush:
+class NormalBrush(object):
 
     disttotarget = 0
 
@@ -62,12 +62,12 @@ class TriggerBrush(NormalBrush):
     tickwait = -1
 
     def __init__(self, x, y, z, width, height, breadth, tag, target, event, callevent, owner):
-        super(TriggerBrush, self).__init__(x, y, z, width, height, breadth, owner)
+        super(TriggerBrush, self).__init__(x, y, z, width, height, breadth, tag, owner)
         self.target, self.event, self.callevent = target, event, callevent
-        if not target.isinstance(Vector):
+        if not isinstance(target, Vector):
             logandprint("Warning: Invalid type for target!")
             target = self.position
-        if not callevent.isinstance(bool):
+        if not isinstance(callevent, bool):
             raise TypeError
         self.target2 = self.position
 
@@ -154,7 +154,9 @@ class Game:
                 return True
         return False
 
-    def __init__(self, mapname):
+    def __init__(self, mapname, owner):
+
+        self.owner = owner
 
         mapfile = open("..\\maps\\" + mapname + ".blm", "r")
 
@@ -169,17 +171,23 @@ class Game:
                 if mapparsecode[1] == "normal":
 
                     #next line TL;DR: grab all values from the map's line
-                    bx, by, bz, bwidth, bheight, bbreadth =\
+                    bx, by, bz, bwidth, bbreadth, bheight, tag =\
                     float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]),\
-                    float(mapparsecode[5]), float(mapparsecode[6]), float(mapparsecode[7])
+                    float(mapparsecode[5]), float(mapparsecode[6]), float(mapparsecode[7]),\
+                    mapparsecode[8]
 
-                    #next line TL;DR: asserts all these values are floats
-                    assert isinstance(bx, float)\
-                    and isinstance(by, float) and isinstance(bz, float)\
-                        and isinstance(bwidth, float) and isinstance(bheight, float)\
-                        and isinstance(bbreadth, float)
+                    self.brushlist.append(NormalBrush(bx, by, bz, bwidth, bheight, bbreadth, tag, self))
 
-                    self.brushlist.append(NormalBrush(bx, by, bz, bwidth, bheight, bbreadth, self))
+                elif mapparsecode[1] == "moving":
+                    bx, by, bz, bwidth, bbreadth,  bheight, tag, targetx, targety, targetz,\
+                    event, callevent =\
+                    float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]),\
+                    float(mapparsecode[5]), float(mapparsecode[6]), float(mapparsecode[7]),\
+                    mapparsecode[8], float(mapparsecode[9]), float(mapparsecode[10]), float(mapparsecode[11]),\
+                    mapparsecode[12], bool(mapparsecode[13])
+
+                    self.brushlist.append(TriggerBrush(bx, by, bz, bwidth, bheight, bbreadth, tag, Vector(targetx, targety, targetz),\
+                    event, callevent, self))
 
             elif mapparsecode[0] == "gravity":
                 self.gravity = float(mapparsecode[1])
@@ -190,11 +198,6 @@ class Game:
                     float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]),\
                     mapparsecode[5], mapparsecode[6], mapparsecode[7],\
                     float(mapparsecode[8]), float(mapparsecode[9])
-
-                    assert isinstance(x, float) and isinstance(y, float) and\
-                    isinstance(z, float) and isinstance(name, string) and\
-                    isinstance(tag, string) and isinstance(lvlname, string) and\
-                    isinstance(radius, float) and isinstance(height, float)
 
                     self.actorlist.append(LevelTransition(x, y, z, name, tag, lvlname, radius, height, self))
                 elif mapparsecode[1] == "monster":
@@ -277,8 +280,22 @@ class Game:
         logandprint("Started tickloop!")
         while True:
             sleep(1/30)
+            self.owner.renderer.render()
             for x in self.actorlist:
                 x.tick()
+            for x in self.brushlist:
+                x.tick()
+            for y in self.actorlist:
+                hasactor = False
+                for x in self.owner.renderer.renderedactors:
+                    if x.actor == y:
+                        hasactor = True
+                if not hasactor:
+                    self.owner.renderer.renderedactors.append(R.RendererActor())
+            for x in self.owner.renderer.renderedactors:
+                if not x.actor in self.actorlist:
+                    del x
+
 
 class Actor(object):
 
@@ -625,7 +642,7 @@ class Bot(Pawn):
             Roam()
         else:
             MoveToActor(NextNavigationPoint)
-        logandprint("Bot has moved to x=" + str(self.x) + " y=" + str(self.y))
+        log("Bot has moved to x=" + str(self.x) + " y=" + str(self.y))
         if DistanceToActor(NextNavigationPoint) < 235 and ( isinstance(NextNavigationPoint, NavigationPoint)\
         or issubclass(type(NextNavigationPoint), NavigationPoint) ):
             NextNavigationPoint = NextNavigationPoint.SpecialHandling(self)
@@ -644,6 +661,7 @@ class Bot(Pawn):
                         self.pathbuffer = self.CurrentNavigationPoint.FindPathToActor(self.ShootTarget)
                         self.NextNavigationPoint = self.pathbuffer.pop(0)
                 else:
+                    Roam()
                     Shoot(self.ShootTarget)
                     self.pathbuffer = []
 
@@ -689,5 +707,6 @@ class Monster(Pawn):
                     self.NextNavigationPoint = self.pathbuffer.pop(0)
 
             else:
+                Roam()
                 self.pathbuffer = []
                 Shoot(Target)

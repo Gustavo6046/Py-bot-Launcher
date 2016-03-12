@@ -22,7 +22,7 @@ class RendererActor:
         renderx, rendery, renderz = self.actor.location.x, self.actor.location.y, self.actor.location.z
         corrsphere.pos = (renderx, renderz, rendery)
 
-class GameRender:
+class GameRender(object):
     #VPython lists of RendererActors and RendererBrushes for rendering them
     renderedactors  = [] #actors
     renderedbrushes = [] #brushes
@@ -35,14 +35,14 @@ class GameRender:
     #adds brush to render
     def addbrush(self, brushname):
         self.renderedbrushes.append (RendererBrush(brushname,\
-        box(pos = (brushname.x, brushname.z, brushname.y),\
-        lenght = brushname.width, height = brushname.height, width = brushname.breadth)))
+        box(pos=(brushname.x + (brushname.width / 2), brushname.z + (brushname.height / 2), brushname.y + (brushname.breadth / 2)),\
+        lenght=brushname.width, height=brushname.height, width=brushname.breadth, color=color.blue)))
+        if isinstance(brushname, C.TriggerBrush):
+            self.renderedbrushes[len(self.renderedbrushes) - 1].brush.color = color.orange
 
-    #tick loop
+    #tick
     def render(self):
-        while True:
-            for w in self.renderedactors:
-                w.tick()
-            for w in self.renderedbrushes:
-                w.tick()
-            Sleep(1/30)
+        for w in self.renderedactors:
+            w.tick()
+        for w in self.renderedbrushes:
+            w.tick()

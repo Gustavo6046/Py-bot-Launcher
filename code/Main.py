@@ -17,40 +17,44 @@ import Renderer as R
 C.logandprint("Finished importing the VPython renderer!")
 
 def main():
+    GameStarter = StartGame()
 
-    C.logandprint("Started initialization!")
+class StartGame():
 
-    #defines what characters define comments
-    commentchars = [";", "$", "#", "/", "!", "@"]
+    def __init__(self):
+        C.logandprint("Started initialization!")
 
-    #opens the config file about the maps
-    firstmap = open("..\\config\\firstmap.txt", "r")
+        #defines what characters define comments
+        commentchars = [";", "$", "#", "/", "!", "@"]
 
-    #Filters comments from the first line and gets the map's name
-    firstlvl = firstmap.readline()
-    if commentchars.__contains__(firstlvl[1]):
+        #opens the config file about the maps
+        firstmap = open("..\\config\\firstmap.txt", "r")
+
+        #Filters comments from the first line and gets the map's name
         firstlvl = firstmap.readline()
-    if firstlvl[len(firstlvl)-2:] == "\n":
-        firstlvl = firstlvl[:-2]
+        if commentchars.__contains__(firstlvl[1]):
+            firstlvl = firstmap.readline()
+        if firstlvl[len(firstlvl)-2:] == "\n":
+            firstlvl = firstlvl[:-2]
 
-    #Starts the new game
-    Thegame = C.Game(firstlvl)
+        #Starts the new game
+        Thegame = C.Game(firstlvl, self)
 
-    #Starts renderer
-    renderer = R.GameRender()
+        #Starts renderer
+        renderer = R.GameRender()
 
-    #adds brushes and actors to it
-    for x in Thegame.actorlist:
-        renderer.addactor(x)
-    for y in Thegame.brushlist:
-        renderer.addbrush(y)
+        #adds brushes and actors to it
+        for x in Thegame.actorlist:
+            renderer.addactor(x)
+        for y in Thegame.brushlist:
+            renderer.addbrush(y)
 
-    #starts tickloop of renderer
-    renderer.render()
+        #starts tickloop of renderer
+        renderer.render()
 
-    C.logandprint("Finished initialization!\n=========================\nStarted game tickloop")
-    #Starts tickloop of new game
-    Thegame.Tick()
+        C.logandprint("Finished initialization!\n=========================\nStarted game tickloop")
+        #Starts tickloop of new game
+        Thegame.Tick()
 
 if __name__ == "__main__":
     main()

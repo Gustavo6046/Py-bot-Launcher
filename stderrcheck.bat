@@ -1,4 +1,6 @@
 @echo off
+del stderr.txt >nul
+
 echo Checking for tracebacks ...
 
 cd code

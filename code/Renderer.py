@@ -23,7 +23,7 @@ class RendererActor(baseRendererClass):
 
     def Tick(self):
         renderx, rendery, renderz = self.actor.location.x, self.actor.location.y, self.actor.location.z
-        corrsphere.pos = (renderx, renderz, rendery)
+        self.sphere.pos = (renderx, renderz, rendery)
 
 class GameRender(object):
     #VPython lists of RendererActors and RendererBrushes for rendering them

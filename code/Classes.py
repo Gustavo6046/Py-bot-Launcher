@@ -509,7 +509,7 @@ class Pawn(Actor):
         self.Jumping = true
 
     def MoveToActor(self, actor):
-        assert actor.isinstance(Actor) or actor.issubclass(type(Actor))
+        assert isinstance(actor, Actor) or issubclass(type(actor), Actor)
 
         self.MoveToPoint(actor.x, actor.y, actor.z)
 
@@ -518,17 +518,17 @@ class Pawn(Actor):
         isinstance(y, float) and\
         isinstance(z, float)
 
-        if (z > self.z + (self.JumpZ * (self.JumpZ / -self.owner.Gravity))):
+        if (z > self.z + (self.JumpZ * (self.JumpZ / -self.owner.gravity))):
             if not self.Jumping:
                 self.Jump()
-            self.location = self.location.move_towards(Vector(x, y, self.z), 25 * airspeedfactor)
+            self.location = self.location.move_towards(Vector(x, y, self.z), self.location.distance_to(Vector(x, y, self.z)) / self.airspeedfactor)
         else:
-            self.location = self.location.move_towards(Vector(x, y, self.z), 30 / GroundSpeed)
+            self.location = self.location.move_towards(Vector(x, y, self.z), self.location.distance_to(Vector(x, y, self.z)) / self.groundspeedfactor)
 
     def __init__(self, x, y, z, health, name, armor, tag, owner, pitch = 0, yaw = 0, roll = 0):
         super(Pawn, self).__init__(x, y, z, name, owner, pitch, yaw, roll)
         self.health, self.armor, self.tag = health, armor, tag
-        self.airspeedfactor = 0.34
+        self.airspeedfactor = 1.16
         self.maxHealth = 100
         self.ShootTarget = None
         self.ViewFactor = 70
@@ -537,11 +537,13 @@ class Pawn(Actor):
         self.XVelocity = 0
         self.YVelocity = 0
         self.ZVelocity = 0
-        self.GroundSpeed = 15
+        self.groundspeedfactor = 1.92
+        self.CurrentNavigationPoint = None
+        self.Roam()
 
     def FindInventory(self):
         foundinventories = []
-        for w in owner.actorlist:
+        for w in self.owner.actorlist:
             if not isinstance(w, Inventory) or issubclass(type(w, Inventory)):
                 continue
             if LineOfSightTo(w):
@@ -549,16 +551,19 @@ class Pawn(Actor):
         return foundinventories
 
     def Roam(self):
-        if not hasattr(self, CurrentNavigationPoint) or self.CurrentNavigationPoint == None:
+        if not hasattr(self, "CurrentNavigationPoint") or self.CurrentNavigationPoint == None:
             maxdist = 2000
-            for w in owner.actorlist:
-                if not (isinstance(w, NavigationPoint) or issubclass(type(w, NavigationPoint))):
+            for w in self.owner.actorlist:
+                if not (isinstance(w, NavigationPoint) or issubclass(type(w), NavigationPoint)):
                     continue
-                cdist = DistanceToActor(w)
+                cdist = self.DistanceToActor(w)
                 if cdist < maxdist:
                     maxdist = cdist
                     self.CurrentNavigationPoint = w
-        self.NextNavigationPoint = choice(CurrentNavigationPoint.ConnectedNodes)
+            self.NextNavigationPoint = self.CurrentNavigationPoint
+
+        else:
+            self.NextNavigationPoint = choice(self.CurrentNavigationPoint.ConnectedNodes)
 
 class Bot(Pawn):
 
@@ -570,6 +575,7 @@ class Bot(Pawn):
     def __init__(self, x, y, z, health, name, armor, tag, owner, pitch = 0, yaw = 0, roll = 0):
         super(Bot, self).__init__(x, y, z, health, name, armor, tag, owner, pitch, yaw, roll)
         self.currentweapon = WeaponInventory(self.x, self.y, self.z, "Shotty", 0.3, 20, 60, 12, 1, self.owner)
+        self.Roam()
 
     def Shoot(targetactor):
         ChooseBestWeapon()
@@ -590,10 +596,11 @@ class Bot(Pawn):
             return False
         inventory.Collected(self)
         self.inventory.append(inventory)
+        logandprint("| Bot " + self.name + " collected inventory " + inventory.name)
         return True
 
     def GetNextNavigationPoint(self, CallerNavigationPoint):
-        if FindInventory() != []:
+        if self.FindInventory() != []:
             return choice(FindInventory())
         if self.state == "Roaming":
             return choice(CallerNavigationPoint.ConnectedNodes)
@@ -602,30 +609,30 @@ class Bot(Pawn):
 
     def tick(self):
         super(Bot, self).tick()
-        if not hasattr(self, NextNavigationPoint) or self.NextNavigationPoint == None:
-            Roam()
+        if not hasattr(self, "NextNavigationPoint") or self.NextNavigationPoint == None:
+            self.Roam()
         else:
-            MoveToActor(NextNavigationPoint)
-        log("Bot has moved to x=" + str(self.x) + " y=" + str(self.y))
-        if DistanceToActor(NextNavigationPoint) < 235 and ( isinstance(NextNavigationPoint, NavigationPoint) or issubclass(type(NextNavigationPoint), NavigationPoint) ):
-            NextNavigationPoint = NextNavigationPoint.SpecialHandling(self)
-        elif isinstance(NextNavigationPoint, Inventory) or issubclass(type(NextNavigationPoint), Inventory):
-            if NextNavigationPoint in inventory:
+            self.MoveToActor(self.NextNavigationPoint)
+        if self.DistanceToActor(self.NextNavigationPoint) < 235 and ( isinstance(self.NextNavigationPoint, NavigationPoint) or issubclass(type(self.NextNavigationPoint), NavigationPoint) ):
+            self.NextNavigationPoint = self.NextNavigationPoint.SpecialHandling(self)
+        elif isinstance(self.NextNavigationPoint, Inventory) or issubclass(type(self.NextNavigationPoint), Inventory):
+            if self.NextNavigationPoint in inventory:
                 Roam()
         if self.ShootTarget != None:
             if self.ShootTarget.health == -666:
                 self.ShootTarget = None
             else:
-                if not LineOfSightTo(self.ShootTarget):
+                if not self.LineOfSightTo(self.ShootTarget):
                     if self.pathbuffer != []:
                         self.pathbuffer = self.CurrentNavigationPoint.GetPathToActor(self.ShootTarget)
-                    if DistanceToActor(self.NextNavigationPoint) < 150:
+                    if self.DistanceToActor(self.NextNavigationPoint) < 150:
                         self.CurrentNavigationPoint = self.NextNavigationPoint
                         self.pathbuffer = self.CurrentNavigationPoint.FindPathToActor(self.ShootTarget)
                         self.NextNavigationPoint = self.pathbuffer.pop(0)
                 else:
-                    Roam()
-                    Shoot(self.ShootTarget)
+                    if self.DistanceToActor(self.NextNavigationPoint) < 250:
+                        self.Roam()
+                    self.Shoot(self.ShootTarget)
                     self.pathbuffer = []
 
 class Monster(Pawn):

@@ -9,8 +9,6 @@ if __name__ == "__main__":
     clearfile.close()
 
 def logandprint(logging):
-    dt = datetime.now()
-    logging = "[" + strftime("%H:%M:%S.") + str(dt.microsecond) + "] " + logging
     if not isinstance(logging, str):
         return False
 
@@ -39,9 +37,7 @@ class NormalBrush(object):
     disttotarget = 0
 
     def __init__(self, x, y, z, width, height, breadth, tag, owner):
-        self.position, self.x, self.y, self.z, self.width, self.height, self.breadth,\
-        self.owner = float(x), float(y), float(z), float(width), float(height), float(breadth), owner, Vector(x, y, z)
-        self.targetpos, self.initpos = self.position, self.position
+        self.position, self.x, self.y, self.z, self.width, self.height, self.breadth, self.owner = Vector(x, y, z), float(x), float(y), float(z), float(width), float(height), float(breadth), owner, self.targetpos, self.initpos = self.position, self.position
 
     def tick(self):
         self.x, self.y, self.z = self.position.x, self.position.y, self.position.z
@@ -176,20 +172,12 @@ class Game(object):
                 if mapparsecode[1] == "normal":
 
                     #next line TL;DR: grab all values from the map's line
-                    bx, by, bz, bwidth, bbreadth, bheight, tag =\
-                    float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]),\
-                    float(mapparsecode[5]), float(mapparsecode[6]), float(mapparsecode[7]),\
-                    mapparsecode[8]
+                    bx, by, bz, bwidth, bbreadth, bheight, tag = float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]), float(mapparsecode[5]), float(mapparsecode[6]), float(mapparsecode[7]), mapparsecode[8]
 
                     self.brushlist.append(NormalBrush(bx, by, bz, bwidth, bheight, bbreadth, tag, self))
 
                 elif mapparsecode[1] == "moving":
-                    bx, by, bz, bwidth, bbreadth,  bheight, tag, targetx, targety, targetz,\
-                    event, callevent =\
-                    float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]),\
-                    float(mapparsecode[5]), float(mapparsecode[6]), float(mapparsecode[7]),\
-                    mapparsecode[8], float(mapparsecode[9]), float(mapparsecode[10]), float(mapparsecode[11]),\
-                    mapparsecode[12], bool(mapparsecode[13])
+                    bx, by, bz, bwidth, bbreadth,  bheight, tag, targetx, targety, targetz, event, callevent = float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]), float(mapparsecode[5]), float(mapparsecode[6]), float(mapparsecode[7]), mapparsecode[8], float(mapparsecode[9]), float(mapparsecode[10]), float(mapparsecode[11]), mapparsecode[12], bool(mapparsecode[13])
 
                     self.brushlist.append(TriggerBrush(bx, by, bz, bwidth, bheight, bbreadth, tag, Vector(targetx, targety, targetz),\
                     event, callevent, self))
@@ -199,70 +187,44 @@ class Game(object):
 
             elif mapparsecode[0] == "actor":
                 if mapparsecode[1] == "endmap":
-                    x, y, z, name, tag, lvlname, radius, height =\
-                    float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]),\
-                    mapparsecode[5], mapparsecode[6], mapparsecode[7],\
-                    float(mapparsecode[8]), float(mapparsecode[9])
+                    x, y, z, name, tag, lvlname, radius, height = float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]), mapparsecode[5], mapparsecode[6], mapparsecode[7], float(mapparsecode[8]), float(mapparsecode[9])
 
                     self.actorlist.append(LevelTransition(x, y, z, name, tag, lvlname, radius, height, self))
                 elif mapparsecode[1] == "monster":
-                    x. y. z. health, name, armor, tag, pitch, yaw, roll, event,\
-                    projdmg, projradius, projspeed=\
-                    float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]),\
-                    float(mapparsecode[5]), mapparsecode[6], float(mapparsecode[7]),\
-                    mapparsecode[8], float(mapparsecode[9]), float(mapparsecode[10]),\
-                    float(mapparsecode[11]), float(mapparsecode[12]), float(mapparsecode[12]),\
-                    float(mapparsecode[13])
+                    x. y. z. health, name, armor, tag, pitch, yaw, roll, event, projdmg, projradius, projspeed= float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]), float(mapparsecode[5]), mapparsecode[6], float(mapparsecode[7]), mapparsecode[8], float(mapparsecode[9]), float(mapparsecode[10]), float(mapparsecode[11]), float(mapparsecode[12]), float(mapparsecode[12]), float(mapparsecode[13])
 
                     self.actorlist.append(Monster(x, y, z, health, name, armor, tag, self, event, pitch, yaw, roll, projdmg, projradius, projspeed) )
                 elif mapparsecode[1] == "botnode":
                     if mapparsecode[2] == "startpoint":
-                        x, y, z, name, pitch, yaw, roll =\
-                        float(mapparsecode[3]), float(mapparsecode[4]),\
-                        float(mapparsecode[5]), mapparsecode[6],\
-                        float(mapparsecode[7]), float(mapparsecode[8]),\
-                        float(mapparsecode[9])
+                        x, y, z, name, pitch, yaw, roll = float(mapparsecode[3]), float(mapparsecode[4]), float(mapparsecode[5]), mapparsecode[6], float(mapparsecode[7]), float(mapparsecode[8]), float(mapparsecode[9])
 
                         self.actorlist.append(StartPoint(x, y, z, name, self, pitch, yaw, roll))
 
                     elif mapparsecode[2] == "normal":
-
-                        x, y, z, name = float(mapparsecode[3]), float(mapparsecode[4]),\
-                        float(mapparsecode[5]), mapparsecode[6]
+                        x, y, z, name = float(mapparsecode[3]), float(mapparsecode[4]), float(mapparsecode[5]), mapparsecode[6]
 
                         self.actorlist.append(NavigationPoint(x, y, z, name, self))
 
                     elif mapparsecode[2] == "target":
-
-                        x, y, z, name = float(mapparsecode[3]), float(mapparsecode[4]),\
-                        float(mapparsecode[5]), mapparsecode[6]
+                        x, y, z, name = float(mapparsecode[3]), float(mapparsecode[4]), float(mapparsecode[5]), mapparsecode[6]
 
                         self.actorlist.append(TargetPoint(x, y, z, name. self))
 
                 elif mapparsecode[1] == "health":
 
-                    x, y, z, name, amount = float(mapparsecode[2]),\
-                    float(mapparsecode[3]), float(mapparsecode[4]),\
-                    mapparsecode[5], float(mapparsecode[6])
+                    x, y, z, name, amount = float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]),mapparsecode[5], float(mapparsecode[6])
 
                     self.actorlist.append(HealthInventory(x, y, z, name, amount, self))
 
                 elif mapparsecode[1] == "weapon":
 
-                    x, y, z, name, rating, firerate, projspeed, projdamage,\
-                    projradius = float(mapparsecode[2]), float(mapparsecode[3]),\
-                    float(mapparsecode[4]), mapparsecode[5], float(mapparsecode[6]),\
-                    float(mapparsecode[7]), float(mapparsecode[8]), float(mapparsecode[9]),\
-                    float(mapparsecode[10])
+                    x, y, z, name, rating, firerate, projspeed, projdamage, projradius = float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]), mapparsecode[5], float(mapparsecode[6]), float(mapparsecode[7]), float(mapparsecode[8]), float(mapparsecode[9]), float(mapparsecode[10])
 
                     self.actorlist.append(WeaponInventory(x, y, z, name, rating, firerate, projspeed, projdamage, projradius, self))
 
                 elif mapparsecode[1] == "bot":
 
-                    x, y, z, health, name, armor, tag =\
-                    float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]),\
-                    float(mapparsecode[5]), mapparsecode[6], float(mapparsecode[7]),\
-                    mapparsecode[8]
+                    x, y, z, health, name, armor, tag = float(mapparsecode[2]), float(mapparsecode[3]), float(mapparsecode[4]), float(mapparsecode[5]), mapparsecode[6], float(mapparsecode[7]), mapparsecode[8]
 
                     self.actorlist.append(Bot(x, y, z, health, name, armor, tag, self))
 
@@ -356,8 +318,7 @@ class Actor(object):
 class LevelTransition(Actor):
 
     def __init__(self, x, y, z, name, tag, lvlname, radius, height, owner):
-        self.x, self.y, self.z, self.name, self.tag, self.lvlname, self.radius,\
-        self.height, self.owner = x, y, z, name, tag, lvlname, radius, height, owner
+        self.x, self.y, self.z, self.name, self.tag, self.lvlname, self.radius, self.height, self.owner = x, y, z, name, tag, lvlname, radius, height, owner
 
     def triggered():
         del self.owner
@@ -436,9 +397,7 @@ class StartPoint(NavigationPoint):
 
 class Projectile(Actor):
     def __init__(self, x, y, z, name, owner, targetloc, speed, damage, radius, shooter):
-        self.location, self.x, self.y, self.z, self.name, self.owner, self.targetloc,\
-        self.speed, self.damage, self.explradius, self.shooter = Vector(x, y, z),\
-        x, y, z, name, owner, targetloc, pitch, yaw, roll, speed, damage, radius
+        self.location, self.x, self.y, self.z, self.name, self.owner, self.targetloc, self.speed, self.damage, self.explradius, self.shooter = Vector(x, y, z), x, y, z, name, owner, targetloc, pitch, yaw, roll, speed, damage, radius
 
         self.initlocation = self.location
 
@@ -462,8 +421,7 @@ class Inventory(Actor):
     collected = None
 
     def __init__(self, x, y, z, name, amount, owner, pitch=0, yaw=0, roll=0):
-        self.x, self.y, self.z, self.name, self.amount, self.owner, self.pitch,\
-        self.yaw, self.roll = x, y, z, name, amount, owner, pitch, yaw, roll
+        self.x, self.y, self.z, self.name, self.amount, self.owner, self.pitch, self.yaw, self.roll = x, y, z, name, amount, owner, pitch, yaw, roll
         self.location = Vector(x, y, z)
 
     def Collected(self, owner):
@@ -483,9 +441,7 @@ class WeaponInventory(Inventory):
     currdelay = 0
 
     def __init__(self, x, y, z, name, rating, firerate, projspeed, projdamage, projexplradius, owner):
-        self.location, self.x, self.y, self.z, self.name,\
-        self.rating, self.firerate, self.owner, self.projspeed, self.projdamage, self.projexplradius =\
-        Vector(x, y, z), x, y, z, name, rating, firerate, owner, projspeed, projdamage, projexplradius
+        self.location, self.x, self.y, self.z, self.name, self.rating, self.firerate, self.owner, self.projspeed, self.projdamage, self.projexplradius = Vector(x, y, z), x, y, z, name, rating, firerate, owner, projspeed, projdamage, projexplradius
 
     def Collected(self, owner):
         if isinstance(owner, Pawn) or issubclass(type(owner, Pawn)):
@@ -651,8 +607,7 @@ class Bot(Pawn):
         else:
             MoveToActor(NextNavigationPoint)
         log("Bot has moved to x=" + str(self.x) + " y=" + str(self.y))
-        if DistanceToActor(NextNavigationPoint) < 235 and ( isinstance(NextNavigationPoint, NavigationPoint)\
-        or issubclass(type(NextNavigationPoint), NavigationPoint) ):
+        if DistanceToActor(NextNavigationPoint) < 235 and ( isinstance(NextNavigationPoint, NavigationPoint) or issubclass(type(NextNavigationPoint), NavigationPoint) ):
             NextNavigationPoint = NextNavigationPoint.SpecialHandling(self)
         elif isinstance(NextNavigationPoint, Inventory) or issubclass(type(NextNavigationPoint), Inventory):
             if NextNavigationPoint in inventory:
@@ -678,10 +633,8 @@ class Monster(Pawn):
     pathbuffer = []
 
     def __init__(self, x, y, z, health, name, armor, tag, owner, event, projdmg, projspeed, projradius, pitch = 0, yaw = 0, roll = 0):
-        super(Monster, self).__init__(self, x, y, z, health, name, armor, tag,\
-        pitch, yaw, roll, owner)
-        self.event, self.projectile_damage, self.projectile_speed,\
-        self.projectile_radius = event, projdmg, projspeed, projradius
+        super(Monster, self).__init__(self, x, y, z, health, name, armor, tag, pitch, yaw, roll, owner)
+        self.event, self.projectile_damage, self.projectile_speed, self.projectile_radius = event, projdmg, projspeed, projradius
         maxndist = 2000
         for w in owner.actorlist:
             if not w.isinstance(NavigationPoint) or w.issubclass(type(NavigationPoint)):

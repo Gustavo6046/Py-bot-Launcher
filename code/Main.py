@@ -37,11 +37,11 @@ class StartGame():
         if firstlvl[len(firstlvl)-2:] == "\n":
             firstlvl = firstlvl[:-2]
 
+        #Starts renderer
+        self.renderer = R.GameRender()
+
         #Starts the new game
         Thegame = C.Game(firstlvl, self)
-
-        #Starts renderer
-        renderer = R.GameRender()
 
         #adds brushes and actors to it
         for x in Thegame.actorlist:

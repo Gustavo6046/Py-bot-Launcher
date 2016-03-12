@@ -43,14 +43,8 @@ class StartGame():
         #Starts the new game
         Thegame = C.Game(firstlvl, self)
 
-        #adds brushes and actors to it
-        for x in Thegame.actorlist:
-            renderer.addactor(x)
-        for y in Thegame.brushlist:
-            renderer.addbrush(y)
-
         #starts tickloop of renderer
-        renderer.render()
+        self.renderer.render()
 
         C.logandprint("Finished initialization!\n=========================\nStarted game tickloop")
         #Starts tickloop of new game

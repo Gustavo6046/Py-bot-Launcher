@@ -13,8 +13,8 @@ class RendererBrush(baseRendererClass):
 
     def Tick(self):
         renderx, rendery, renderz = self.brush.x, self.brush.y, self.brush.z
-        corrbox.pos = (renderx, renderz, rendery)
-        corrbox.width, corrbox.lenght, corrbox.height = self.brush.breadth, self.brush.width, self.brush.height
+        self.box.pos = (renderx, renderz, rendery)
+        self.box.width, self.box.lenght, self.box.height = self.brush.breadth, self.brush.width, self.brush.height
 
 class RendererActor(baseRendererClass):
     def __init__(self, corractor, corrsphere):
@@ -38,14 +38,13 @@ class GameRender(object):
     #adds brush to render
     def addbrush(self, brushname):
         self.renderedbrushes.append (RendererBrush(brushname,\
-        box(pos=(brushname.x + (brushname.width / 2.0), brushname.z + (brushname.height / 2.0), brushname.y + (brushname.breadth / 2.0)),\
-        lenght=brushname.width, height=brushname.height, width=brushname.breadth, color=color.blue)))
+        box(pos=(brushname.x + (brushname.width / 2.0), brushname.z + (brushname.height / 2.0), brushname.y + (brushname.breadth / 2.0)), size=(brushname.width, brushname.height, brushname.breadth), color=color.blue)))
         if isinstance(brushname, C.TriggerBrush):
             self.renderedbrushes[len(self.renderedbrushes) - 1].brush.color = color.orange
 
     #tick
     def render(self):
         for w in self.renderedactors:
-            w.tick()
+            w.Tick()
         for w in self.renderedbrushes:
-            w.tick()
+            w.Tick()

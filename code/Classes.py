@@ -37,7 +37,8 @@ class NormalBrush(object):
     disttotarget = 0
 
     def __init__(self, x, y, z, width, height, breadth, tag, owner):
-        self.position, self.x, self.y, self.z, self.width, self.height, self.breadth, self.owner = Vector(x, y, z), float(x), float(y), float(z), float(width), float(height), float(breadth), owner, self.targetpos, self.initpos = self.position, self.position
+        self.position, self.x, self.y, self.z, self.width, self.height, self.breadth, self.owner = Vector(x, y, z), float(x), float(y), float(z), float(width), float(height), float(breadth), owner
+        self.targetpos, self.initpos = self.position, self.position
 
     def tick(self):
         self.x, self.y, self.z = self.position.x, self.position.y, self.position.z
@@ -464,17 +465,6 @@ class WeaponInventory(Inventory):
 
 class Pawn(Actor):
 
-    airspeedfactor = 0.34
-    maxHealth = 100
-    ShootTarget = None
-    ViewFactor = 70
-    JumpZ = 75
-    Jumping = False
-    XVelocity = 0
-    YVelocity = 0
-    ZVelocity = 0
-    GroundSpeed = 15
-
     def TakeDamage(self, amount, instigator):
         if self.armor > 0.0:
             self.health -= (amount / 3.0) * 2.0
@@ -503,10 +493,10 @@ class Pawn(Actor):
     def tick(self):
         self.x, self.y, self.z = self.location.x, self.location.y, self.location.z
         self.location += Vector(self.XVelocity, self.YVelocity, self.ZVelocity)
-        ZVelocity -= self.owner.gravity
+        self.ZVelocity -= self.owner.gravity
         Touched = False
-        for w in owner.brushlist:
-            if w.Touching(self.x, self.y, self.z):
+        for w in self.owner.brushlist:
+            if w.HasCoordinate(self.x, self.y, self.z):
                 Touched = True
                 w.Touch(self)
         if Touched == True:
@@ -538,6 +528,16 @@ class Pawn(Actor):
     def __init__(self, x, y, z, health, name, armor, tag, owner, pitch = 0, yaw = 0, roll = 0):
         super(Pawn, self).__init__(x, y, z, name, owner, pitch, yaw, roll)
         self.health, self.armor, self.tag = health, armor, tag
+        self.airspeedfactor = 0.34
+        self.maxHealth = 100
+        self.ShootTarget = None
+        self.ViewFactor = 70
+        self.JumpZ = 75
+        self.Jumping = False
+        self.XVelocity = 0
+        self.YVelocity = 0
+        self.ZVelocity = 0
+        self.GroundSpeed = 15
 
     def FindInventory(self):
         foundinventories = []
@@ -601,7 +601,7 @@ class Bot(Pawn):
             return CallerNavigationPoint.GetPathToTarget
 
     def tick(self):
-        Super(Bot, self).tick()
+        super(Bot, self).tick()
         if not hasattr(self, NextNavigationPoint) or self.NextNavigationPoint == None:
             Roam()
         else:

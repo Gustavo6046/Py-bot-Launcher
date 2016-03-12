@@ -2,6 +2,11 @@ from time import sleep
 import Classes as C
 from visual import *
 C.logandprint("Finished importing VPython!")
+import wx
+C.logandprint("Finished importing wx!")
+
+app = wx.App(False)
+scsize = wx.GetDisplaySize()
 
 class baseRendererClass(object):
     pass
@@ -22,7 +27,7 @@ class RendererActor(baseRendererClass):
         self.sphere = corrsphere
 
     def Tick(self):
-        renderx, rendery, renderz = self.actor.location.x, self.actor.location.y, self.actor.location.z
+        renderx, rendery, renderz = self.actor.x, self.actor.y, self.actor.z
         self.sphere.pos = (renderx, renderz, rendery)
 
 class GameRender(object):
@@ -33,17 +38,18 @@ class GameRender(object):
     #adds actor to render
     def addactor(self, actorname):
         self.renderedactors.append(RendererActor(actorname,\
-        sphere(pos=(actorname.location.x, actorname.location.z, actorname.location.y), radius=24, color=color.blue)))
+        sphere(pos=(actorname.location.x, actorname.location.z, actorname.location.y), radius=24, color=color.red)))
 
     #adds brush to render
     def addbrush(self, brushname):
-        self.renderedbrushes.append (RendererBrush(brushname,\
-        box(pos=(brushname.x + (brushname.width / 2.0), brushname.z + (brushname.height / 2.0), brushname.y + (brushname.breadth / 2.0)), size=(brushname.width, brushname.height, brushname.breadth), color=color.blue)))
         if isinstance(brushname, C.TriggerBrush):
             self.renderedbrushes[len(self.renderedbrushes) - 1].brush.color = color.orange
+        else:
+            self.renderedbrushes.append (RendererBrush(brushname, box(pos=(brushname.x + (-brushname.width / 2.0), brushname.z + (-brushname.height / 2.0), brushname.y + (-brushname.breadth / 2.0)), size=(brushname.width, brushname.height, brushname.breadth), color=color.blue)))
 
     #tick
     def render(self):
+        rate(30)
         for w in self.renderedactors:
             w.Tick()
         for w in self.renderedbrushes:

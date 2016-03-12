@@ -5,7 +5,7 @@ from datetime import datetime
 
 if __name__ == "__main__":
     clearfile = open("..\\log.txt", "w")
-    clearfile.write("")
+    clearfile.truncate()
     clearfile.close()
 
 def logandprint(logging):
@@ -94,7 +94,6 @@ class TriggerBrush(NormalBrush):
                 self.targetpos = self.target2
 
 
-
 #==========================
 # Math Classes
 
@@ -130,7 +129,11 @@ class Vector(object):
         return self.x * other.x + self.y * other.y + self.z * other.z
 
     def distance_to(self, other):
-        return sqrt(self.dot_product(other))
+        dp = self.dot_product(other)
+        if dp < 0:
+            return -sqrt(-dp)
+        else:
+            return sqrt(dp)
 
 #==========================
 # Main Classes
@@ -276,13 +279,11 @@ class Actor(object):
             currentpos = self.location
 
             if Actor2 is self:
-                logtext("Warning: " + self.name + " tried to check line of sight to self!")
+                logandprint("Warning: " + self.name + " tried to check line of sight to self!")
                 return False
 
             if self.location == Actor2.location:
                 return True
-
-            logtext("   :" + self.name + " is detecting line of sight to " + Actor2.name)
 
             portion = 0
 
@@ -291,12 +292,10 @@ class Actor(object):
                 portion += 1
 
                 logtext("       -checked x=" + str(currentpos.x) + " y=" + str(currentpos.y) + " z=" + str(currentpos.z))
-                currentpos = currentpos.move_towards(Actor2.location, self.location.distance_to(Actor2.location) / (portion * 1.5))
+                currentpos = currentpos.move_towards(Actor2.location, self.location.distance_to(Actor2.location) / (portion * 2))
 
                 if currentpos.unwrap() == Actor2.location.unwrap():
                     return True
-
-                sleep(1/500)
 
             return False
 
@@ -492,21 +491,25 @@ class Pawn(Actor):
 
     def tick(self):
         self.x, self.y, self.z = self.location.x, self.location.y, self.location.z
+        self.oldlocation = self.location
         self.location += Vector(self.XVelocity, self.YVelocity, self.ZVelocity)
-        self.ZVelocity -= self.owner.gravity
+        self.ZVelocity += self.owner.gravity
         Touched = False
         for w in self.owner.brushlist:
             if w.HasCoordinate(self.x, self.y, self.z):
                 Touched = True
                 w.Touch(self)
+            elif not self.LineOfSightTo(Actor(self.oldlocation.x, self.oldlocation.y, self.oldlocation.z, "Location Marker", self.owner)):
+                Touched = True
+
         if Touched == True:
-            self.location -= Vector(self.XVelocity, self.YVelocity, self.ZVelocity)
+            self.location = self.oldlocation
             ZVelocity = 0
 
 
     def Jump(self):
         self.ZVelocity += self.JumpZ
-        self.Jumping = true
+        self.Jumping = True
 
     def MoveToActor(self, actor):
         assert isinstance(actor, Actor) or issubclass(type(actor), Actor)
@@ -518,7 +521,7 @@ class Pawn(Actor):
         isinstance(y, float) and\
         isinstance(z, float)
 
-        if (z > self.z + (self.JumpZ * (self.JumpZ / -self.owner.gravity))):
+        if (z > self.z + (self.JumpZ * (self.JumpZ / self.owner.gravity))):
             if not self.Jumping:
                 self.Jump()
             self.location = self.location.move_towards(Vector(x, y, self.z), self.location.distance_to(Vector(x, y, self.z)) / self.airspeedfactor)

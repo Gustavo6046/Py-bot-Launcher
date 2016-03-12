@@ -46,7 +46,8 @@ class StartGame():
         #starts tickloop of renderer
         self.renderer.render()
 
-        C.logandprint("Finished initialization!\n=========================\nStarted game tickloop")
+        C.logandprint("Finished initialization!")
+        C.logandprint("=========================\n")
         #Starts tickloop of new game
         Thegame.Tick()
 

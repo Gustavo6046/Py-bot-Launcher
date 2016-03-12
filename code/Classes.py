@@ -1,6 +1,7 @@
-from time import sleep
+from time import sleep, strftime
 from random import choice
 from math import sqrt
+from datetime import datetime
 
 if __name__ == "__main__":
     clearfile = open("..\\log.txt", "w")
@@ -8,6 +9,8 @@ if __name__ == "__main__":
     clearfile.close()
 
 def logandprint(logging):
+    dt = datetime.now()
+    logging = "[" + strftime("%H:%M:%S.") + str(dt.microsecond) + "] " + logging
     if not isinstance(logging, str):
         return False
 
@@ -15,6 +18,8 @@ def logandprint(logging):
     return logtext(logging)
 
 def logtext(logging):
+    dt = datetime.now()
+    logging = "[" + strftime("%H:%M:%S.") + str(dt.microsecond) + "] " + logging
     if not isinstance(logging, str):
         return False
     logtxt = open("..\log.txt", "a")
@@ -35,7 +40,7 @@ class NormalBrush(object):
 
     def __init__(self, x, y, z, width, height, breadth, tag, owner):
         self.position, self.x, self.y, self.z, self.width, self.height, self.breadth,\
-        self.owner = x, y, z, width, height, breadth, owner, Vector(x, y, z)
+        self.owner = float(x), float(y), float(z), float(width), float(height), float(breadth), owner, Vector(x, y, z)
         self.targetpos, self.initpos = self.position, self.position
 
     def tick(self):
@@ -96,7 +101,7 @@ class TriggerBrush(NormalBrush):
 #==========================
 # Math Classes
 
-class Vector:
+class Vector(object):
     def __init__(self, x, y, z):
         self.x, self.y, self.z = float(x), float(y), float(z)
 
@@ -133,7 +138,7 @@ class Vector:
 #==========================
 # Main Classes
 
-class Game:
+class Game(object):
 
     brushlist = []
     actorlist = []
@@ -274,7 +279,9 @@ class Game:
             if issubclass(type(x), NavigationPoint) or isinstance(x, NavigationPoint):
                 x.PostInitialization()
 
-        logandprint("NavigationPoint reachspecs calculated!")
+        logandprint("Adding brushes to renderer....")
+        for x in self.brushlist:
+            self.owner.renderer.addbrush(x)
 
     def Tick(self):
         logandprint("Started tickloop!")
@@ -291,7 +298,7 @@ class Game:
                     if x.actor == y:
                         hasactor = True
                 if not hasactor:
-                    self.owner.renderer.renderedactors.append(R.RendererActor())
+                    self.owner.renderer.addactor(y)
             for x in self.owner.renderer.renderedactors:
                 if not x.actor in self.actorlist:
                     del x
@@ -300,11 +307,12 @@ class Game:
 class Actor(object):
 
     def LineOfSightTo(self, Actor2):
-            assert isinstance(Actor2, Actor) or issubclass(Type(Actor2), Actor)
+            if not ( isinstance(Actor2, Actor) or issubclass(Type(Actor2), Actor) ):
+                raise TypeError("Invalid types for execution of line of sight check!")
 
             currentpos = self.location
 
-            if Actor2 == self:
+            if Actor2 is self:
                 logtext("Warning: " + self.name + " tried to check line of sight to self!")
                 return False
 
@@ -412,7 +420,7 @@ class NavigationPoint(Actor):
         for x in self.owner.actorlist:
             if not ( isinstance(x, NavigationPoint) and issubclass(type(x), NavigationPoint) ):
                 continue
-            if self.LineOfSightTo(x) and x.z - self.z < 70 and x != self:
+            if self.LineOfSightTo(x) and x.z - self.z < 70 and not x is self:
                 self.ConnectedNodes.append(x)
 
 class TargetPoint(NavigationPoint):

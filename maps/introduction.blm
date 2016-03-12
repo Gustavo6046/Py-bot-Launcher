@@ -2,11 +2,19 @@
 gravity -48
 #=====
 #floor brush
-brush normal 0.0 0.0 0.0 384.0 384.0 24.0
+brush normal 0.0 0.0 0.0 384.0 384.0 24.0 brushnormal1
 #=====
 #bots
 actor bot 96.0 128.0 45.0 100.0 Bot1 50.0 Bot
 actor bot 96.0 256.0 45.0 100.0 Bot1 50.0 Bot
 actor botnode startpoint 192.0 192.0 45.0 StartPoint 0.0 0.0 0.0
 actor botnode normal 192.0 256.0 1.0 Node1
-brush normal 192.0 384.0 0.0 128.0 256.0 24.0
+#=====
+#next brush
+brush normal 192.0 384.0 0.0 128.0 256.0 24.0 brushnormal2
+#=====
+#test door, trigger and next floor brush
+brush moving 32.0 160.0 8.0 32.0 32.0 8.0 brushmoving1 32.0 160.0 1.0 door1 True
+brush moving 384.0 128.0 45.0 16.0 128.0 256.0 door1 384.0 128.0 256.0 None False
+brush normal 384.0 128.0 0.0 16.0 128.0 45.0 brushnormal3
+brush normal 400.0 0.0 0.0 256.0 256.0 45.0 brushnormal4

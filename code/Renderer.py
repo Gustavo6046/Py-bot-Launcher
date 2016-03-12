@@ -3,7 +3,10 @@ import Classes as C
 from visual import *
 C.logandprint("Finished importing VPython!")
 
-class RendererBrush:
+class baseRendererClass(object):
+    pass
+
+class RendererBrush(baseRendererClass):
     def __init__(self, corrbrush, corrbox):
         self.brush = corrbrush
         self.box = corrbox
@@ -13,7 +16,7 @@ class RendererBrush:
         corrbox.pos = (renderx, renderz, rendery)
         corrbox.width, corrbox.lenght, corrbox.height = self.brush.breadth, self.brush.width, self.brush.height
 
-class RendererActor:
+class RendererActor(baseRendererClass):
     def __init__(self, corractor, corrsphere):
         self.actor = corractor
         self.sphere = corrsphere
@@ -35,7 +38,7 @@ class GameRender(object):
     #adds brush to render
     def addbrush(self, brushname):
         self.renderedbrushes.append (RendererBrush(brushname,\
-        box(pos=(brushname.x + (brushname.width / 2), brushname.z + (brushname.height / 2), brushname.y + (brushname.breadth / 2)),\
+        box(pos=(brushname.x + (brushname.width / 2.0), brushname.z + (brushname.height / 2.0), brushname.y + (brushname.breadth / 2.0)),\
         lenght=brushname.width, height=brushname.height, width=brushname.breadth, color=color.blue)))
         if isinstance(brushname, C.TriggerBrush):
             self.renderedbrushes[len(self.renderedbrushes) - 1].brush.color = color.orange
